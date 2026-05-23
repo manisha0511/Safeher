@@ -8,6 +8,9 @@ function Profile() {
   const [user, setUser] = useState({});
   const [contacts, setContacts] = useState([]);
 
+  const [editing, setEditing] =
+    useState(false);
+
   const { darkMode, toggleTheme } =
     useTheme();
 
@@ -32,6 +35,77 @@ function Profile() {
 
   }, []);
 
+  // INPUT CHANGE
+  const handleChange = (e) => {
+
+    setUser({
+      ...user,
+      [e.target.name]: e.target.value,
+    });
+
+  };
+
+  // IMAGE UPLOAD
+  const handleImageUpload = (e) => {
+
+    const file = e.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onloadend = () => {
+
+      setUser({
+        ...user,
+        profileImage: reader.result,
+      });
+
+    };
+
+    reader.readAsDataURL(file);
+
+  };
+
+  // SAVE PROFILE
+  const saveProfile = async () => {
+
+    try {
+
+      const response = await fetch(
+        "http://localhost:8080/users/update",
+        {
+          method: "PUT",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify(user),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      setUser(data);
+
+      setEditing(false);
+
+      alert("Profile Updated ✅");
+
+    } catch (error) {
+
+      console.log(error);
+
+      alert("Update Failed");
+
+    }
+
+  };
+
+  // LOGOUT
   const logout = () => {
 
     localStorage.removeItem("token");
@@ -49,13 +123,15 @@ function Profile() {
 
       <div className="max-w-3xl mx-auto">
 
-        {/* Header */}
+        {/* HEADER */}
         <div className="flex items-start sm:items-center gap-3 sm:gap-4 mt-4">
 
           <Link to="/home">
 
             <button className="text-white text-xl sm:text-2xl">
+
               ←
+
             </button>
 
           </Link>
@@ -78,22 +154,64 @@ function Profile() {
 
         </div>
 
-        {/* Profile Card */}
+        {/* PROFILE CARD */}
         <div className="mt-6 sm:mt-8 bg-[#1b1140] border border-pink-500/20 rounded-2xl sm:rounded-3xl p-5 sm:p-6 flex flex-col items-center text-center">
 
           <img
-            src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+            src={
+              user.profileImage ||
+
+              "https://cdn-icons-png.flaticon.com/512/4140/4140048.png"
+            }
             alt=""
-            className="w-20 h-20 sm:w-28 sm:h-28 rounded-full border-4 border-pink-500"
+            className="w-24 h-24 sm:w-32 sm:h-32 rounded-full border-4 border-pink-500 object-cover"
           />
 
-          <h2 className="text-white text-xl sm:text-2xl font-bold mt-4 sm:mt-5 break-words">
+          {/* IMAGE CHANGE */}
+          {
+            editing && (
 
-            {user.name}
+              <label className="mt-4 cursor-pointer bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-xl text-white text-sm">
 
-          </h2>
+                Change Photo
 
-          <p className="text-gray-400 text-sm break-words">
+                <input
+                  type="file"
+                  hidden
+                  accept="image/*"
+                  onChange={
+                    handleImageUpload
+                  }
+                />
+
+              </label>
+
+            )
+          }
+
+          {
+            editing ? (
+
+              <input
+                type="text"
+                name="name"
+                value={user.name || ""}
+                onChange={handleChange}
+                className="mt-5 bg-[#251255] border border-pink-500/20 rounded-xl p-3 text-white outline-none text-center"
+              />
+
+            ) : (
+
+              <h2 className="text-white text-xl sm:text-2xl font-bold mt-4 sm:mt-5 break-words">
+
+                {user.name}
+
+              </h2>
+
+            )
+          }
+
+          <p className="text-gray-400 text-sm break-words mt-2">
 
             {user.email}
 
@@ -107,56 +225,144 @@ function Profile() {
 
         </div>
 
-        {/* Personal Info */}
+        {/* PERSONAL INFO */}
         <div className="mt-6 sm:mt-8 bg-[#1b1140] border border-pink-500/20 rounded-2xl sm:rounded-3xl p-5 sm:p-6">
 
-          <h2 className="text-pink-400 text-lg sm:text-xl font-bold">
+          <div className="flex items-center justify-between">
 
-            Personal Details
+            <h2 className="text-pink-400 text-lg sm:text-xl font-bold">
 
-          </h2>
+              Personal Details
 
-          <div className="mt-4 sm:mt-5 space-y-3 sm:space-y-4 text-sm sm:text-base">
+            </h2>
 
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+            {
+              !editing ? (
+
+                <button
+                  onClick={() =>
+                    setEditing(true)
+                  }
+                  className="bg-pink-500 hover:bg-pink-600 px-4 py-2 rounded-xl text-white text-sm"
+                >
+
+                  Edit
+
+                </button>
+
+              ) : (
+
+                <button
+                  onClick={saveProfile}
+                  className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-xl text-white text-sm"
+                >
+
+                  Save
+
+                </button>
+
+              )
+            }
+
+          </div>
+
+          <div className="mt-4 sm:mt-5 space-y-4">
+
+            {/* PHONE */}
+            <div>
 
               <p className="text-gray-400">
+
                 Phone
-              </p>
-
-              <p className="text-white break-words">
-
-                {user.phone}
 
               </p>
+
+              {
+                editing ? (
+
+                  <input
+                    type="text"
+                    name="phone"
+                    value={user.phone || ""}
+                    onChange={handleChange}
+                    className="w-full mt-2 bg-[#251255] border border-pink-500/20 rounded-xl p-3 text-white outline-none"
+                  />
+
+                ) : (
+
+                  <p className="text-white mt-2">
+
+                    {user.phone}
+
+                  </p>
+
+                )
+              }
 
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+            {/* BLOOD */}
+            <div>
 
               <p className="text-gray-400">
+
                 Blood Group
-              </p>
-
-              <p className="text-white">
-
-                {user.bloodGroup}
 
               </p>
+
+              {
+                editing ? (
+
+                  <input
+                    type="text"
+                    name="bloodGroup"
+                    value={user.bloodGroup || ""}
+                    onChange={handleChange}
+                    className="w-full mt-2 bg-[#251255] border border-pink-500/20 rounded-xl p-3 text-white outline-none"
+                  />
+
+                ) : (
+
+                  <p className="text-white mt-2">
+
+                    {user.bloodGroup}
+
+                  </p>
+
+                )
+              }
 
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+            {/* ADDRESS */}
+            <div>
 
               <p className="text-gray-400">
+
                 Address
-              </p>
-
-              <p className="text-white break-words">
-
-                {user.address}
 
               </p>
+
+              {
+                editing ? (
+
+                  <textarea
+                    name="address"
+                    value={user.address || ""}
+                    onChange={handleChange}
+                    className="w-full mt-2 bg-[#251255] border border-pink-500/20 rounded-xl p-3 text-white outline-none"
+                  />
+
+                ) : (
+
+                  <p className="text-white mt-2 break-words">
+
+                    {user.address}
+
+                  </p>
+
+                )
+              }
 
             </div>
 
@@ -164,7 +370,7 @@ function Profile() {
 
         </div>
 
-        {/* Emergency Contacts */}
+        {/* EMERGENCY CONTACTS */}
         <div className="mt-6 sm:mt-8 bg-[#1b1140] border border-pink-500/20 rounded-2xl sm:rounded-3xl p-5 sm:p-6">
 
           <h2 className="text-pink-400 text-lg sm:text-xl font-bold">
@@ -283,7 +489,7 @@ function Profile() {
 
             </div>
 
-            {/* AI CHATBOT */}
+            {/* AI CHAT */}
             <Link to="/ai-chat">
 
               <div className="bg-[#251255] border border-pink-500/20 rounded-2xl p-4 hover:scale-[1.02] transition-all cursor-pointer">
@@ -316,7 +522,7 @@ function Profile() {
 
             </Link>
 
-            {/* AI SAFE ROUTE */}
+            {/* AI ROUTE */}
             <Link to="/ai-safe-route">
 
               <div className="bg-[#251255] border border-pink-500/20 rounded-2xl p-4 hover:scale-[1.02] transition-all cursor-pointer">

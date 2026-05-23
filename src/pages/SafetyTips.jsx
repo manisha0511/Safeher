@@ -88,7 +88,7 @@ function SafetyTips() {
             <div className="mt-4 sm:mt-5 flex flex-col gap-3 sm:gap-4">
 
               <a
-                href="https://www.ncw.nic.in/"
+                href="https://www.ncw.gov.in/"
                 target="_blank"
                 rel="noreferrer"
                 className="w-full"
@@ -99,7 +99,7 @@ function SafetyTips() {
               </a>
 
               <a
-                href="https://www.ncw.gov.in/helplines"
+                href="https://whl.tnsw.in/#:~:text=THE%20OBJECTIVES%20OF%20THE%20181%20%2D%20WOMEN%20HELPLINE&text=To%20facilitate%20crisis%20and%20non,the%20woman%20affected%20by%20violence."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block"
@@ -121,7 +121,7 @@ function SafetyTips() {
               </a>
 
               <a
-                href="https://112.gov.in"
+                href="https://www.mha.gov.in/en/commoncontent/emergency-response-support-system-erss"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block"

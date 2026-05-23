@@ -42,6 +42,6 @@ yarn-error.log*
 # IDE
 .vscode
 .idea
-application.properties
+
 target/
 target/

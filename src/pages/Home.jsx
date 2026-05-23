@@ -116,12 +116,7 @@ function Home() {
 
       </div>
 
-      {/* VOICE SOS */}
-      <div className="mt-8">
-
-        <VoiceSOS />
-
-      </div>
+      
 
       {/* SOS BUTTON */}
       <div className="flex justify-center mt-10">

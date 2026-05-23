@@ -14,6 +14,7 @@ import FakeCall from "./pages/FakeCall";
 import SafetyTips from "./pages/SafetyTips";
 import AIChat from "./pages/AIChat";
 import AISafeRoute from "./pages/AISafeRoute";
+import EditProfile from "./pages/EditProfile";
 
 function App() {
   return (
@@ -120,6 +121,15 @@ function App() {
           element={
             <ProtectedRoute>
               <AISafeRoute />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/edit-profile"
+          element={
+            <ProtectedRoute>
+              <EditProfile />
             </ProtectedRoute>
           }
         />
