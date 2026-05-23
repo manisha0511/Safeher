@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/users")
 @CrossOrigin("*")
+
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
 
-    // SIGNUP API
+    // SIGNUP
     @PostMapping("/signup")
     public User signup(@RequestBody User user) {
 
@@ -23,7 +24,7 @@ public class UserController {
 
     }
 
-    // LOGIN API
+    // LOGIN
     @PostMapping("/login")
     public String login(@RequestBody User loginUser) {
 
@@ -50,7 +51,7 @@ public class UserController {
         }
     }
 
-    // GET USER BY EMAIL
+    // GET USER
     @GetMapping("/{email}")
     public User getUserByEmail(
             @PathVariable String email
@@ -62,7 +63,42 @@ public class UserController {
 
     // UPDATE USER
     @PutMapping("/update")
-    public User updateUser(@RequestBody User updatedUser) {
-        return userRepository.save(updatedUser);
+    public User updateUser(
+            @RequestBody User updatedUser
+    ) {
+
+        User existingUser =
+                userRepository.findByEmail(
+                        updatedUser.getEmail()
+                );
+
+        if (existingUser != null) {
+
+            existingUser.setName(
+                    updatedUser.getName()
+            );
+
+            existingUser.setPhone(
+                    updatedUser.getPhone()
+            );
+
+            existingUser.setBloodGroup(
+                    updatedUser.getBloodGroup()
+            );
+
+            existingUser.setAddress(
+                    updatedUser.getAddress()
+            );
+
+            existingUser.setProfileImage(
+                    updatedUser.getProfileImage()
+            );
+
+            return userRepository.save(
+                    existingUser
+            );
+        }
+
+        return null;
     }
 }

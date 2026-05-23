@@ -5,8 +5,7 @@ import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/ai")
@@ -19,80 +18,90 @@ public class AIController {
 
     @PostMapping("/chat")
 
-    public String chat(
+    public ResponseEntity<?> chat(
             @RequestBody Map<String, String> body
     ) {
 
-        String userMessage =
-                body.get("message");
-
-        String prompt = """
-
-You are SafeHer AI.
-
-You are a smart women safety assistant.
-
-Give:
-- short
-- practical
-- safety focused
-- emotionally supportive answers
-
-User Question:
-""" + userMessage;
-
-        RestTemplate restTemplate =
-                new RestTemplate();
-
-        String url =
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="
-                        + API_KEY;
-
-        HttpHeaders headers =
-                new HttpHeaders();
-
-        headers.setContentType(
-                MediaType.APPLICATION_JSON
-        );
-
-        Map<String, Object> requestBody =
-                Map.of(
-
-                        "contents",
-                        List.of(
-
-                                Map.of(
-                                        "parts",
-                                        List.of(
-
-                                                Map.of(
-                                                        "text",
-                                                        prompt
-                                                )
-
-                                        )
-                                )
-
-                        )
-                );
-
-        HttpEntity<Map<String, Object>> entity =
-                new HttpEntity<>(
-                        requestBody,
-                        headers
-                );
-
         try {
 
-            Map response =
-                    restTemplate.postForObject(
+            String userMessage =
+                    body.get("message");
+
+            RestTemplate restTemplate =
+                    new RestTemplate();
+
+            String url =
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="
+                            + API_KEY;
+
+            HttpHeaders headers =
+                    new HttpHeaders();
+
+            headers.setContentType(
+                    MediaType.APPLICATION_JSON
+            );
+
+            // GEMINI BODY
+            Map<String, Object> requestBody =
+                    Map.of(
+
+                            "contents",
+
+                            List.of(
+
+                                    Map.of(
+
+                                            "parts",
+
+                                            List.of(
+
+                                                    Map.of(
+
+                                                            "text",
+
+                                                            """
+                                                            You are SafeHer AI.
+
+                                                            You help women stay safe.
+
+                                                            Give:
+                                                            - short replies
+                                                            - safety advice
+                                                            - emergency guidance
+                                                            - emotionally supportive answers
+
+                                                            User:
+                                                            """
+                                                                    + userMessage
+                                                    )
+
+                                            )
+
+                                    )
+
+                            )
+
+                    );
+
+            HttpEntity<Map<String, Object>> entity =
+                    new HttpEntity<>(
+                            requestBody,
+                            headers
+                    );
+
+            ResponseEntity<Map> response =
+                    restTemplate.exchange(
                             url,
+                            HttpMethod.POST,
                             entity,
                             Map.class
                     );
 
+            Map responseBody =
+                    response.getBody();
+
             List candidates =
-                    (List) response.get(
+                    (List) responseBody.get(
                             "candidates"
                     );
 
@@ -112,16 +121,24 @@ User Question:
             Map firstPart =
                     (Map) parts.get(0);
 
-            return firstPart
-                    .get("text")
-                    .toString();
+            String aiReply =
+                    firstPart.get("text")
+                            .toString();
+
+            return ResponseEntity.ok(
+                    aiReply
+            );
 
         } catch (Exception e) {
 
             e.printStackTrace();
 
-            return "⚠️ AI response error";
+            return ResponseEntity
+                    .status(500)
+                    .body("⚠️ Gemini AI Error");
 
         }
+
     }
+
 }
